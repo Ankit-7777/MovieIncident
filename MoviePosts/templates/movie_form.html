@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}Edit{% else %}Create{% endif %} Movie{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-r from-teal-400 via-cyan-500 to-blue-600">
+    <div class="bg-white p-8 rounded-lg shadow-lg transform transition-all duration-500 hover:shadow-2xl w-full max-w-3xl">
+        <h1 class="text-4xl font-extrabold text-gray-800 mb-8 text-center">{% if object %}Edit{% else %}Create{% endif %} Movie</h1>
+        <form method="POST" enctype="multipart/form-data" class="movie-form">
+            {% csrf_token %}
+            
+            <div class="mb-6">
+                <label for="name" class="block text-lg font-semibold text-gray-700">Movie Name</label>
+                <input type="text" name="name" value="{{ object.name }}" class="border border-gray-300 rounded-lg p-3 w-full transition duration-300 ease-in-out focus:ring-2 focus:ring-teal-500 focus:outline-none" required>
+            </div>
+
+            <div class="mb-6">
+                <label for="description" class="block text-lg font-semibold text-gray-700">Description</label>
+                <textarea name="description" rows="4" class="border border-gray-300 rounded-lg p-3 w-full transition duration-300 ease-in-out focus:ring-2 focus:ring-teal-500 focus:outline-none" required>{{ object.description }}</textarea>
+            </div>
+
+            <div class="mb-6">
+                <label for="poster" class="block text-lg font-semibold text-gray-700">Poster Image</label>
+                <input type="file" name="poster" class="border border-gray-300 rounded-lg p-3 w-full transition duration-300 ease-in-out focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                <p class="text-gray-500 text-sm mt-2">Optional: Upload a poster image (JPEG, PNG)</p>
+            </div>
+
+            <div class="mb-6">
+                <label for="trailer_video" class="block text-lg font-semibold text-gray-700">Trailer Video</label>
+                <input type="file" name="trailer_video" class="border border-gray-300 rounded-lg p-3 w-full transition duration-300 ease-in-out focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                <p class="text-gray-500 text-sm mt-2">Optional: Upload a trailer video (MP4, AVI)</p>
+            </div>
+
+            <div class="mb-6">
+                <label for="full_movie_video" class="block text-lg font-semibold text-gray-700">Full Movie Video</label>
+                <input type="file" name="full_movie_video" class="border border-gray-300 rounded-lg p-3 w-full transition duration-300 ease-in-out focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                <p class="text-gray-500 text-sm mt-2">Optional: Upload the full movie video (MP4, AVI)</p>
+            </div>
+
+            <div class="mb-6">
+                <label for="release_date" class="block text-lg font-semibold text-gray-700">Release Date</label>
+                <input type="date" name="release_date" value="{{ object.release_date }}" class="border border-gray-300 rounded-lg p-3 w-full transition duration-300 ease-in-out focus:ring-2 focus:ring-teal-500 focus:outline-none" required>
+            </div>
+
+            <div class="mb-6">
+                <label for="language" class="block text-lg font-semibold text-gray-700">Language</label>
+                <input type="text" name="language" value="{{ object.language }}" class="border border-gray-300 rounded-lg p-3 w-full transition duration-300 ease-in-out focus:ring-2 focus:ring-teal-500 focus:outline-none" required>
+            </div>
+
+            <div class="mb-6">
+                <label for="tags" class="block text-lg font-semibold text-gray-700">Tags (comma separated)</label>
+                <input type="text" name="tags" value="{{ object.tags.all|join:', ' }}" class="border border-gray-300 rounded-lg p-3 w-full transition duration-300 ease-in-out focus:ring-2 focus:ring-teal-500 focus:outline-none">
+            </div>
+
+            <div class="flex justify-center">
+                <button type="submit" class="bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform duration-300 hover:scale-105">
+                    {% if object %}Update{% else %}Create{% endif %}
+                </button>
+            </div>
+        </form>
+
+        {% if object %}
+            <div class="mt-4 text-center">
+                <a class="text-red-500 underline" href="{% url 'movie_delete' object.pk %}" onclick="return confirm('Are you sure you want to delete this movie?');">Delete this movie</a>
+            </div>
+        {% endif %}
+        
+        <div class="mt-4 text-center">
+            <a class="text-blue-500 underline" href="{% url 'movie_list' %}">Back to Movie List</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

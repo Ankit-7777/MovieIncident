@@ -1,0 +1,268 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ movie.name }}{% endblock %}
+
+{% block content %}
+<style>
+    /* Star Rating Styles */
+    .star-rating {
+        direction: rtl;
+        display: flex;
+        justify-content: flex-start;
+        gap: 8px;
+    }
+
+    .star {
+        font-size: 40px;
+        color: #ddd;
+        cursor: pointer;
+        transition: transform 0.3s ease, color 0.3s ease;
+    }
+
+    .star-rating input {
+        display: none; /* Hide the radio inputs */
+    }
+
+    .star-rating input:checked ~ .star {
+        color: gold; /* Highlight the selected star */
+    }
+
+    .star-rating input:checked + .star,
+    .star-rating input:hover + .star,
+    .star-rating input:hover ~ .star {
+        color: gold; /* Change color on hover */
+    }
+
+    .star:hover {
+        transform: scale(1.2); /* Grow star on hover */
+    }
+
+    /* Form and Comments Styling */
+    .form-container, .comments-container {
+        background: white;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        animation: fadeInUp 0.5s ease-in-out;
+    }
+
+    .comment-item {
+        padding: 10px;
+        border-bottom: 1px solid #f0f0f0;
+        transition: background 0.3s ease;
+    }
+
+    .comment-item:last-child {
+        border-bottom: none;
+    }
+
+    .comment-item:hover {
+        background-color: #f9f9f9;
+    }
+
+    .comment-author {
+        font-weight: bold;
+        color: #4a4a4a;
+    }
+
+    .comment-text {
+        color: #6b6b6b;
+    }
+
+    /* Submit Button */
+    .submit-btn {
+        background: linear-gradient(to right, #38b6ff, #0066cc);
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 50px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.4s ease, transform 0.3s ease;
+    }
+
+    .submit-btn:hover {
+        background: linear-gradient(to right, #0073e6, #005bb5);
+        transform: translateY(-3px);
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .star-rating {
+            justify-content: center;
+        }
+
+        .form-container, .comments-container {
+            padding: 15px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+        }
+    }
+
+    /* Video Container */
+    .video-container {
+        position: relative;
+        padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+        height: 0;
+        overflow: hidden;
+        border-radius: 15px; /* Rounded corners for the video container */
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Optional shadow for aesthetics */
+    }
+
+    .video-container video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+    .delete-btn {
+        background-color: #e3342f;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 50px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.3s ease, transform 0.3s ease;
+    }
+
+    .delete-btn:hover {
+        background-color: #cc1f1a;
+        transform: translateY(-3px);
+    }
+
+</style>
+
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-r from-teal-400 via-cyan-500 to-blue-600">
+    <div class="w-full max-w-3xl space-y-12 p-6">
+
+        <!-- Movie Details -->
+        <div class="form-container">
+            <h2 class="text-4xl font-extrabold text-gray-800 mb-4">{{ movie.name }}</h2>
+            {% if movie.poster %}
+                <img src="{{ movie.poster.url }}" alt="{{ movie.name }} Poster" class="mb-4 rounded-lg shadow-lg w-full" />
+            {% else %}
+                <p class="text-gray-500 mb-4">No poster available.</p>
+            {% endif %}
+            <p class="text-lg text-gray-700 mb-4">{{ movie.description }}</p>
+            <p class="text-md text-gray-600 mb-6">Released on: <strong>{{ movie.release_date }}</strong></p>
+        </div>
+
+        <!-- Delete Button (Visible only to the director or authorized users) -->
+        {% if request.user == movie.director or request.user.is_superuser %}
+        <a href="{% url 'movie_delete' movie.pk %}" class="delete-btn">
+            Delete Movie
+        </a>
+       {% endif %}
+
+        <!-- Trailer Section -->
+        {% if movie.trailer_video %}
+        <div class="form-container">
+            <h3 class="text-2xl font-semibold text-gray-800 mt-8 mb-4">Watch the Trailer</h3>
+            <div class="video-container">
+                <video controls>
+                    <source src="{{ movie.trailer_video.url }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+        {% else %}
+            <p class="text-red-500">Trailer video is missing.</p>
+        {% endif %}
+
+        <!-- Full Movie Section -->
+        {% if movie.full_movie_video %}
+        <div class="form-container">
+            <h3 class="text-2xl font-semibold text-gray-800 mt-8 mb-4">Watch Full Movie</h3>
+            <div class="video-container">
+                <video controls>
+                    <source src="{{ movie.full_movie_video.url }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+        {% else %}
+            <p class="text-red-500">Full movie video is missing.</p>
+        {% endif %}
+
+        <!-- Comments Section -->
+        <div class="comments-container">
+            <h3 class="text-2xl font-semibold text-gray-800 mb-4">Comments</h3>
+            <ul class="border border-gray-300 rounded-lg p-4 mb-6">
+                {% for comment in comments %}
+                    <li class="comment-item">
+                        <span class="comment-text">{{ comment.text }}</span> - 
+                        <em class="comment-author">{{ comment.author.username }}</em>
+                    </li>
+                {% empty %}
+                    <li class="text-gray-500">No comments yet.</li>
+                {% endfor %}
+            </ul>
+
+            <!-- Add a Comment -->
+            <h3 class="text-2xl font-semibold text-gray-800 mt-8 mb-4">Add a Comment</h3>
+            <form method="POST" action="{% url 'add_comment' movie.pk %}" class="mb-8">
+                {% csrf_token %}
+                {{ comment_form.as_p }}
+                <button type="submit" class="submit-btn">
+                    Submit Comment
+                </button>
+            </form>
+        </div>
+
+        <!-- Rating Section -->
+        <div class="form-container">
+            <h3 class="text-2xl font-semibold text-gray-800 mt-8 mb-4">Rate this Movie</h3>
+            {% if request.user != movie.director %}
+                <form method="POST" action="{% url 'rate_movie' movie.pk %}">
+                    {% csrf_token %}
+                    <div class="star-rating mb-4">
+                        {% for i in "5 4 3 2 1" %}
+                            {% with i|add:"0" as star %}
+                                <input type="radio" id="star{{ star }}" name="rating" value="{{ star }}"
+                                    {% if user_rating == star %}checked{% endif %} required />
+                                <label for="star{{ star }}" class="star">&#9733;</label>
+                            {% endwith %}
+                        {% endfor %}
+                    </div>
+                    <textarea name="review" rows="4" placeholder="Leave a review..." style="width: 100%;" 
+                            class="border border-gray-300 p-2 rounded-lg"></textarea>
+                    <button type="submit" class="submit-btn">
+                        Submit Rating
+                    </button>
+                </form>
+            {% else %}
+                <p class="text-gray-500">You cannot rate your own movie.</p>
+            {% endif %}
+        </div>
+
+
+
+        <!-- Feedback Messages -->
+        {% if messages %}
+            <ul class="mt-4">
+                {% for message in messages %}
+                    <li class="text-green-600">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

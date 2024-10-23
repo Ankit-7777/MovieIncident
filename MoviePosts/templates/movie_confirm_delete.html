@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirm Delete{% endblock %}
+
+{% block content %}
+<style>
+
+    body {
+        font-family: 'Arial', sans-serif;
+        background: linear-gradient(135deg, #283618, #606c38);
+        margin: 0;
+        padding: 0;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+    
+    .container {
+        background: #fefae0;
+        border-radius: 10px;
+        padding: 40px;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    h1 {
+        font-size: 24px;
+        color: #D32F2F;
+        margin-bottom: 20px;
+    }
+    
+    p {
+        color: #333;
+    }
+    
+    .btn {
+        padding: 12px 24px;
+        margin-top: 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background 0.3s ease;
+    }
+    
+    .btn-confirm {
+        background-color: #D32F2F;
+        color: white;
+    }
+    
+    .btn-cancel {
+        background-color: #00796B;
+        color: white;
+        margin-left: 15px;
+    }
+    
+    .btn:hover {
+        opacity: 0.9;
+    }
+    
+
+
+
+
+</style>
+<div class="min-h-screen flex items-center justify-center">
+    <div class="w-full max-w-lg p-6 bg-white text-center rounded-lg shadow-lg">
+        <h1 class="text-3xl font-bold text-red-600 mb-6">Confirm Delete</h1>
+        <p class="mb-4 text-gray-700">Are you sure you want to delete <strong>{{ object.name }}</strong>? This action cannot be undone.</p>
+        
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-confirm hover:bg-red-800 transition duration-300">Yes, Delete</button>
+            <a href="{% url 'movie_list' %}" class="btn btn-cancel hover:bg-teal-900 transition duration-300">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
